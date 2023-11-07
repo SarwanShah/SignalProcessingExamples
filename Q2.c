@@ -88,6 +88,10 @@ double complex *FFT_Recursion(double complex x[], int sampleSize) {
     relate the odd and even components while calculating the FFT. This allowing
     us to break the each DFT step into a smaller requiring step (N^2/2)
     computations. Recursively, this leads to n log n computations.
+
+    The magic here happens because of symmetries in the odd and even components, where for
+    each sub-calcuation we see that beyond e^-j*pi*k*n/N/2 for k > N/2, the result is symmetric.
+    This allows use to break the step in N^2/4 (for even) & N^2/4 (for odd) computations at each step. 
   */
   if (sampleSize <= 1) {
     return x; // Base case, can no longer recursively break
@@ -112,11 +116,11 @@ double complex *FFT_Recursion(double complex x[], int sampleSize) {
     for (int i = 0; i < sampleSize / 2; i++) {
       // Calculating the twiddle factor that allows us to relate the odd and
       // even components
-      double complex twiddle = euler((2 * pi * i) / sampleSize) * odd[i];
+      double complex twiddlePlusOdd = euler((2 * pi * i) / sampleSize) * odd[i];
       x[i] =
-          even[i] + twiddle; // Re-joining even and odd component for first half
+          even[i] + twiddlePlusOdd; // Re-joining even and odd component for first half
       x[i + sampleSize / 2] =
-          even[i] - twiddle; // Re-joining even and odd component for first half
+          even[i] - twiddlePlusOdd; // Re-joining even and odd component for second half
     }
 
     free(even); // Freeing the dynamically allocated memory
